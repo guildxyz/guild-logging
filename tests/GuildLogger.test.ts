@@ -83,7 +83,6 @@ describe("Check GuildLogger", () => {
       testApp.stdout.on("data", (data) => {
         try {
           const stringData: string = data.toString();
-          console.log(stringData);
 
           expect(stringData).toMatch(
             new RegExp(

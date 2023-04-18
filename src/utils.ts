@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/prefer-default-export
 export const getCallerFunctionAndFileName = () => {
   const stackTraceLine = new Error().stack.split("at ")?.[4]?.split(" ");
   const callerFunctionName = stackTraceLine?.[0];
