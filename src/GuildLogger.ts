@@ -27,7 +27,7 @@ export default class GuildLogger {
 
     const logFormat = options.json
       ? [this.getIncludeCorrelationIdFormat()(), format.json(), prettyPrint()]
-      : [this.getPlainTextFormat(), colorize()];
+      : [colorize(), this.getPlainTextFormat()];
 
     this.logger = createLogger({
       level: options.level,
