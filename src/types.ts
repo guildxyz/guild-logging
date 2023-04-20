@@ -22,3 +22,29 @@ export type GuildLoggerOptions = {
    */
   json: boolean;
 };
+
+type AnyKey = {
+  [key: string]: any | AnyKey;
+};
+
+type User = {
+  id?: number;
+  address?: string;
+} & AnyKey;
+
+type PlatformUser = {
+  platformId?: number;
+  platformUserId?: string;
+} & AnyKey;
+
+type JustId = {
+  id?: number;
+} & AnyKey;
+
+export type Meta = {
+  user?: User | User[];
+  platformUser?: PlatformUser | PlatformUser[];
+  guild?: JustId | JustId[];
+  role?: JustId | JustId[];
+  params?: AnyKey;
+} & AnyKey;

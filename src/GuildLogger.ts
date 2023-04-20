@@ -1,5 +1,5 @@
 import { createLogger, format, Logger, transports } from "winston";
-import { ICorrelator, GuildLoggerOptions, LogLevel } from "./types";
+import { ICorrelator, GuildLoggerOptions, LogLevel, Meta } from "./types";
 import { getCallerFunctionAndFileName } from "./utils";
 
 const { printf, combine, colorize, timestamp, errors, prettyPrint } = format;
@@ -45,7 +45,7 @@ export default class GuildLogger {
    * Create a formatter that adds the correlation id to the metadata
    * @returns formatter
    */
-  getIncludeCorrelationIdFormat = () =>
+  private getIncludeCorrelationIdFormat = () =>
     format((info) => {
       const correlationId = this.correlator.getId();
       return {
@@ -58,7 +58,7 @@ export default class GuildLogger {
    * Create a formatter for plain text logging
    * @returns
    */
-  getPlainTextFormat = () =>
+  private getPlainTextFormat = () =>
     printf((log) => {
       const correlationId = this.correlator.getId();
       const correlationIdText = correlationId ? ` ${correlationId}` : "";
@@ -91,24 +91,29 @@ export default class GuildLogger {
    * @param message log message
    * @param meta metadata
    */
-  log = (level: LogLevel, message: string, meta?: any) => {
+  private log = (level: LogLevel, message: string, meta?: Meta) => {
     const { callerFunctionName, fileName } = getCallerFunctionAndFileName();
     const extendedMeta = {
       ...meta,
-      correlationId: this.correlator.getId(),
+      correlationId: this.correlator?.getId(),
       function: callerFunctionName,
       file: fileName,
     };
-    this.logger[level](message, extendedMeta);
+    this.logger?.[level]?.(message, extendedMeta);
   };
 
-  error = (message: string, meta?: any) => this.log("error", message, meta);
+  public error = (message: string, meta?: Meta) =>
+    this.log("error", message, meta);
 
-  warn = (message: string, meta?: any) => this.log("warn", message, meta);
+  public warn = (message: string, meta?: Meta) =>
+    this.log("warn", message, meta);
 
-  info = (message: string, meta?: any) => this.log("info", message, meta);
+  public info = (message: string, meta?: Meta) =>
+    this.log("info", message, meta);
 
-  verbose = (message: string, meta?: any) => this.log("verbose", message, meta);
+  public verbose = (message: string, meta?: Meta) =>
+    this.log("verbose", message, meta);
 
-  debug = (message: string, meta?: any) => this.log("debug", message, meta);
+  public debug = (message: string, meta?: Meta) =>
+    this.log("debug", message, meta);
 }
