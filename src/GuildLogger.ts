@@ -32,7 +32,9 @@ export default class GuildLogger {
         ? [this.getIncludeCorrelationIdFormat()(), format.json(), prettyPrint()]
         : [this.getIncludeCorrelationIdFormat()(), format.json()];
     } else {
-      logFormat = [colorize(), this.getPlainTextFormat()];
+      logFormat = options.pretty
+        ? [colorize(), this.getPlainTextFormat()]
+        : [this.getPlainTextFormat()];
     }
 
     this.logger = createLogger({
