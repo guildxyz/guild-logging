@@ -3,6 +3,7 @@ import { ICorrelator, GuildLoggerOptions, LogLevel, Meta } from "./types";
 import { getCallerFunctionAndFileName } from "./utils";
 
 const { printf, combine, colorize, timestamp, errors, prettyPrint } = format;
+type Format = ReturnType<typeof printf>;
 
 /**
  * Util for logging with metadata
@@ -25,9 +26,14 @@ export default class GuildLogger {
   constructor(options: GuildLoggerOptions) {
     this.correlator = options.correlator;
 
-    const logFormat = options.json
-      ? [this.getIncludeCorrelationIdFormat()(), format.json(), prettyPrint()]
-      : [colorize(), this.getPlainTextFormat()];
+    let logFormat: Format[];
+    if (options.json) {
+      logFormat = options.pretty
+        ? [this.getIncludeCorrelationIdFormat()(), format.json(), prettyPrint()]
+        : [this.getIncludeCorrelationIdFormat()(), format.json()];
+    } else {
+      logFormat = [colorize(), this.getPlainTextFormat()];
+    }
 
     this.logger = createLogger({
       level: options.level,

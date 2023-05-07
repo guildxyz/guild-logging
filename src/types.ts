@@ -12,7 +12,7 @@ export type GuildLoggerOptions = {
   /**
    * suppress all logs
    */
-  silent: boolean;
+  silent?: boolean;
   /**
    * correlator instance
    */
@@ -21,6 +21,10 @@ export type GuildLoggerOptions = {
    * format log as json
    */
   json: boolean;
+  /**
+   * prettify json logs
+   */
+  pretty?: boolean;
 };
 
 type AnyKey = {

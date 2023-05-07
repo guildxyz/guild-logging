@@ -86,7 +86,7 @@ describe("Check GuildLogger", () => {
 
           expect(stringData).toMatch(
             new RegExp(
-              `\\s*\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} ${testLevel} ${testCorrelationId}: ${testLogMessage}, user={\\"id\\":123}, correlationId=${testCorrelationId}, function=${testFunctionName}, file=.*fileToRun.ts:\\d{2}:\\d{2}\\n`
+              `\\s*\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2} \\u001b\\[32m${testLevel}\\u001b\\[39m ${testCorrelationId}: ${testLogMessage}, user={\\"id\\":123}, correlationId=${testCorrelationId}, function=${testFunctionName}, file=.*fileToRun.ts:\\d{2}:\\d{2}\\n`
             )
           );
 

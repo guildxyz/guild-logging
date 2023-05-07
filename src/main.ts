@@ -1,2 +1,2 @@
 export * from "./types";
-export * from "./GuildLogger";
+export { default as GuildLogger } from "./GuildLogger";

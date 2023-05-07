@@ -8,6 +8,7 @@ const guildLogger = new GuildLogger({
   json: isJson,
   level: testLevel,
   silent: false,
+  pretty: true,
 });
 
 const testFunction = () => {
