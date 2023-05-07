@@ -115,14 +115,29 @@ export default class GuildLogger {
    * @param meta metadata
    */
   private log = (level: LogLevel, message: string, meta?: Meta) => {
-    const { callerFunctionName, fileName } = getCallerFunctionAndFileName();
-    const extendedMeta = {
-      ...meta,
-      correlationId: this.correlator?.getId(),
-      function: callerFunctionName,
-      file: fileName,
-    };
-    this.logger?.[level]?.(message, extendedMeta);
+    try {
+      const { callerFunctionName, fileName } = getCallerFunctionAndFileName();
+      const extendedMeta = {
+        ...meta,
+        correlationId: this.correlator?.getId(),
+        function: callerFunctionName,
+        file: fileName,
+      };
+
+      this.logger?.[level]?.(message, extendedMeta);
+    } catch (error) {
+      let metaString: string;
+      try {
+        metaString = JSON.stringify(meta);
+      } catch (metaStringifyError: any) {
+        metaString = `(Cannot stringify meta: ${metaStringifyError.message})`;
+      }
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `GuildLogger.log failed with params (${level}, ${message}, ${metaString}})`
+      );
+    }
   };
 
   public error = (message: string, meta?: Meta) =>
