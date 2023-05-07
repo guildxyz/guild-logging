@@ -51,4 +51,5 @@ export type Meta = {
   guild?: JustId | JustId[];
   role?: JustId | JustId[];
   params?: AnyKey;
+  error?: any;
 } & AnyKey;
