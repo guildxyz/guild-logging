@@ -29,8 +29,12 @@ export default class GuildLogger {
     let logFormat: Format[];
     if (options.json) {
       logFormat = options.pretty
-        ? [this.getIncludeCorrelationIdFormat()(), format.json(), prettyPrint()]
-        : [this.getIncludeCorrelationIdFormat()(), format.json()];
+        ? [
+            this.getCustomPropertyIncludeFormat()(),
+            format.json(),
+            prettyPrint(),
+          ]
+        : [this.getCustomPropertyIncludeFormat()(), format.json()];
     } else {
       logFormat = options.pretty
         ? [colorize(), this.getPlainTextFormat()]
@@ -50,14 +54,25 @@ export default class GuildLogger {
   }
 
   /**
-   * Create a formatter that adds the correlation id to the metadata
+   * Create a formatter that adds the correlation id and error properties to the metadata
    * @returns formatter
    */
-  private getIncludeCorrelationIdFormat = () =>
+  private getCustomPropertyIncludeFormat = () =>
     format((info) => {
       const correlationId = this.correlator.getId();
+
+      let error: any;
+      if (info.error) {
+        error = {
+          name: info.error.name,
+          message: info.error.message,
+          stack: info.error.stack,
+        };
+      }
+
       return {
         ...info,
+        error,
         correlationId,
       };
     });
