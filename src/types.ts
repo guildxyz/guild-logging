@@ -22,7 +22,7 @@ export type GuildLoggerOptions = {
    */
   json: boolean;
   /**
-   * prettify json logs
+   * prettify json logs / colorize text logs
    */
   pretty?: boolean;
 };

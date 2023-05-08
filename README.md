@@ -14,10 +14,11 @@ npm install @guildxyz/logging
 import GuildLogger from "@guildxyz/logging";
 
 const guildLogger = new GuildLogger({
-  correlator: myCorrelator,
-  json: true,
-  level: "debug",
-  silent: false,
+  correlator: myCorrelator, // correlation id provider
+  json: true, // format logs as json
+  level: "debug", // log level
+  silent: false, // hide all logs
+  pretty: true, // prettify json logs / colorize text logs
 });
 
 guildLogger.info("user joined guild", {
@@ -25,6 +26,7 @@ guildLogger.info("user joined guild", {
   user: { address: "0x123" },
   guild: { id: 1985 },
   role: [{ id: 1904 }, { id: 1905 }],
+  error: platformError, // the key has to be 'error' to log it properly
 });
 ```
 
@@ -42,6 +44,7 @@ guildLogger.info("user joined guild", {
   file: '/home/user/guild-logging/example.ts:12:13',
   level: 'info',
   message: 'user joined guild',
-  timestamp: '2023-04-20 14:47:05'
+  timestamp: '2023-04-20 14:47:05',
+  error: {name: 'PlatformError', message: 'add role failed', stack: ...}
 }
 ```
