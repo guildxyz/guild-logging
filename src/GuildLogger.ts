@@ -3,6 +3,7 @@ import { ICorrelator, GuildLoggerOptions, LogLevel, Meta } from "./types";
 import { getCallerFunctionAndFileName } from "./utils";
 
 const { printf, combine, colorize, timestamp, errors, prettyPrint } = format;
+type Format = ReturnType<typeof printf>;
 
 /**
  * Util for logging with metadata
@@ -25,9 +26,20 @@ export default class GuildLogger {
   constructor(options: GuildLoggerOptions) {
     this.correlator = options.correlator;
 
-    const logFormat = options.json
-      ? [this.getIncludeCorrelationIdFormat()(), format.json(), prettyPrint()]
-      : [colorize(), this.getPlainTextFormat()];
+    let logFormat: Format[];
+    if (options.json) {
+      logFormat = options.pretty
+        ? [
+            this.getCustomPropertyIncludeFormat()(),
+            format.json(),
+            prettyPrint(),
+          ]
+        : [this.getCustomPropertyIncludeFormat()(), format.json()];
+    } else {
+      logFormat = options.pretty
+        ? [colorize(), this.getPlainTextFormat()]
+        : [this.getPlainTextFormat()];
+    }
 
     this.logger = createLogger({
       level: options.level,
@@ -42,14 +54,25 @@ export default class GuildLogger {
   }
 
   /**
-   * Create a formatter that adds the correlation id to the metadata
+   * Create a formatter that adds the correlation id and error properties to the metadata
    * @returns formatter
    */
-  private getIncludeCorrelationIdFormat = () =>
+  private getCustomPropertyIncludeFormat = () =>
     format((info) => {
       const correlationId = this.correlator.getId();
+
+      let error: any;
+      if (info.error) {
+        error = {
+          name: info.error.name,
+          message: info.error.message,
+          stack: info.error.stack,
+        };
+      }
+
       return {
         ...info,
+        error,
         correlationId,
       };
     });
@@ -92,14 +115,29 @@ export default class GuildLogger {
    * @param meta metadata
    */
   private log = (level: LogLevel, message: string, meta?: Meta) => {
-    const { callerFunctionName, fileName } = getCallerFunctionAndFileName();
-    const extendedMeta = {
-      ...meta,
-      correlationId: this.correlator?.getId(),
-      function: callerFunctionName,
-      file: fileName,
-    };
-    this.logger?.[level]?.(message, extendedMeta);
+    try {
+      const { callerFunctionName, fileName } = getCallerFunctionAndFileName();
+      const extendedMeta = {
+        ...meta,
+        correlationId: this.correlator?.getId(),
+        function: callerFunctionName,
+        file: fileName,
+      };
+
+      this.logger?.[level]?.(message, extendedMeta);
+    } catch (error) {
+      let metaString: string;
+      try {
+        metaString = JSON.stringify(meta);
+      } catch (metaStringifyError: any) {
+        metaString = `(Cannot stringify meta: ${metaStringifyError.message})`;
+      }
+
+      // eslint-disable-next-line no-console
+      console.log(
+        `GuildLogger.log failed with params (${level}, ${message}, ${metaString}})`
+      );
+    }
   };
 
   public error = (message: string, meta?: Meta) =>
