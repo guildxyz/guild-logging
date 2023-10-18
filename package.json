@@ -1,6 +1,6 @@
 {
   "name": "@guildxyz/logging",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Logging util for Guild.xyz's backend infrastructure.",
   "main": "./build/src/main.js",
   "types": "./build/src/main.d.ts",

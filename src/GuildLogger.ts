@@ -118,8 +118,8 @@ export default class GuildLogger {
     try {
       const { callerFunctionName, fileName } = getCallerFunctionAndFileName();
       const extendedMeta = {
-        ...meta,
         correlationId: this.correlator?.getId(),
+        ...meta,
         function: callerFunctionName,
         file: fileName,
       };
