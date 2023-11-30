@@ -122,6 +122,7 @@ export default class GuildLogger {
         ...meta,
         function: callerFunctionName,
         file: fileName,
+        pid: process.pid,
       };
 
       this.logger?.[level]?.(message, extendedMeta);

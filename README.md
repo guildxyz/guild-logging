@@ -42,6 +42,7 @@ guildLogger.info("user joined guild", {
   correlationId: '4fb94571-7f97-4fe0-a1b8-eb82994fb754',
   function: 'Object.<anonymous>',
   file: '/home/user/guild-logging/example.ts:12:13',
+  pid: 42,
   level: 'info',
   message: 'user joined guild',
   timestamp: '2023-04-20 14:47:05',
