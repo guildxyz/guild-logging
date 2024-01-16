@@ -3,6 +3,7 @@ import { ICorrelator, GuildLoggerOptions, LogLevel, Meta } from "./types";
 import {
   getCallerFunctionAndFileName,
   includeErrorPropertiesFormat,
+  plainTextFormat,
 } from "./utils";
 
 const { printf, combine, colorize, timestamp, errors, prettyPrint } = format;
@@ -36,8 +37,8 @@ export default class GuildLogger {
         : [includeErrorPropertiesFormat(), format.json()];
     } else {
       logFormat = options.pretty
-        ? [colorize(), this.getPlainTextFormat()]
-        : [this.getPlainTextFormat()];
+        ? [colorize(), plainTextFormat]
+        : [plainTextFormat];
     }
 
     this.logger = createLogger({
@@ -51,37 +52,6 @@ export default class GuildLogger {
       silent: options.silent,
     });
   }
-
-  /**
-   * Create a formatter for plain text logging
-   * @returns
-   */
-  private getPlainTextFormat = () =>
-    printf((log) => {
-      const correlationId = this.correlator.getId();
-      const correlationIdText = correlationId ? ` ${correlationId}` : "";
-
-      let msg = `${log.timestamp} ${log.level}${correlationIdText}: ${log.message}`;
-      let metaString = "";
-      Object.entries(log).forEach(([k, v]) => {
-        if (k === "timestamp" || k === "level" || k === "message") {
-          return;
-        }
-
-        let value: any;
-        if (v instanceof Error) {
-          value = `\n${v.stack}\n`;
-        } else if (typeof v === "object") {
-          value = JSON.stringify(v);
-        } else {
-          value = v;
-        }
-
-        metaString += `, ${k}=${value}`;
-      });
-      msg += metaString;
-      return msg;
-    });
 
   /**
    * Log a message at a given level with metadata

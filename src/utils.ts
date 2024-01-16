@@ -32,3 +32,32 @@ export const includeErrorPropertiesFormat = format((info) => {
     error,
   };
 });
+
+/**
+ * A formatter for plain text logging
+ * @returns
+ */
+export const plainTextFormat = format.printf((log) => {
+  const correlationIdText = log.correlationId ? ` ${log.correlationId}` : "";
+
+  let msg = `${log.timestamp} ${log.level}${correlationIdText}: ${log.message}`;
+  let metaString = "";
+  Object.entries(log).forEach(([k, v]) => {
+    if (k === "timestamp" || k === "level" || k === "message") {
+      return;
+    }
+
+    let value: any;
+    if (v instanceof Error) {
+      value = `\n${v.stack}\n`;
+    } else if (typeof v === "object") {
+      value = JSON.stringify(v);
+    } else {
+      value = v;
+    }
+
+    metaString += `, ${k}=${value}`;
+  });
+  msg += metaString;
+  return msg;
+});
