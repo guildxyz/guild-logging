@@ -1,6 +1,10 @@
 import { createLogger, format, Logger, transports } from "winston";
 import { ICorrelator, GuildLoggerOptions, LogLevel, Meta } from "./types";
-import { getCallerFunctionAndFileName } from "./utils";
+import {
+  getCallerFunctionAndFileName,
+  includeErrorPropertiesFormat,
+  plainTextFormat,
+} from "./utils";
 
 const { printf, combine, colorize, timestamp, errors, prettyPrint } = format;
 type Format = ReturnType<typeof printf>;
@@ -29,16 +33,12 @@ export default class GuildLogger {
     let logFormat: Format[];
     if (options.json) {
       logFormat = options.pretty
-        ? [
-            this.getCustomPropertyIncludeFormat()(),
-            format.json(),
-            prettyPrint(),
-          ]
-        : [this.getCustomPropertyIncludeFormat()(), format.json()];
+        ? [includeErrorPropertiesFormat(), format.json(), prettyPrint()]
+        : [includeErrorPropertiesFormat(), format.json()];
     } else {
       logFormat = options.pretty
-        ? [colorize(), this.getPlainTextFormat()]
-        : [this.getPlainTextFormat()];
+        ? [colorize(), plainTextFormat]
+        : [plainTextFormat];
     }
 
     this.logger = createLogger({
@@ -52,61 +52,6 @@ export default class GuildLogger {
       silent: options.silent,
     });
   }
-
-  /**
-   * Create a formatter that adds the correlation id and error properties to the metadata
-   * @returns formatter
-   */
-  private getCustomPropertyIncludeFormat = () =>
-    format((info) => {
-      const correlationId = this.correlator.getId();
-
-      let error: any;
-      if (info.error) {
-        error = {
-          name: info.error.name,
-          message: info.error.message,
-          stack: info.error.stack,
-        };
-      }
-
-      return {
-        ...info,
-        error,
-        correlationId,
-      };
-    });
-
-  /**
-   * Create a formatter for plain text logging
-   * @returns
-   */
-  private getPlainTextFormat = () =>
-    printf((log) => {
-      const correlationId = this.correlator.getId();
-      const correlationIdText = correlationId ? ` ${correlationId}` : "";
-
-      let msg = `${log.timestamp} ${log.level}${correlationIdText}: ${log.message}`;
-      let metaString = "";
-      Object.entries(log).forEach(([k, v]) => {
-        if (k === "timestamp" || k === "level" || k === "message") {
-          return;
-        }
-
-        let value: any;
-        if (v instanceof Error) {
-          value = `\n${v.stack}\n`;
-        } else if (typeof v === "object") {
-          value = JSON.stringify(v);
-        } else {
-          value = v;
-        }
-
-        metaString += `, ${k}=${value}`;
-      });
-      msg += metaString;
-      return msg;
-    });
 
   /**
    * Log a message at a given level with metadata
