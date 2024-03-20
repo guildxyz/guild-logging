@@ -2,6 +2,10 @@ export interface ICorrelator {
   getId: () => string;
 }
 
+export interface IContext {
+  get: () => any;
+}
+
 export type LogLevel = "error" | "warn" | "info" | "verbose" | "debug";
 
 export type GuildLoggerOptions = {
@@ -17,6 +21,10 @@ export type GuildLoggerOptions = {
    * correlator instance
    */
   correlator: ICorrelator;
+  /**
+   * @guildxyz/context
+   */
+  context: IContext;
   /**
    * format log as json
    */
