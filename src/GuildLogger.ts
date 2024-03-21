@@ -1,5 +1,11 @@
 import { createLogger, format, Logger, transports } from "winston";
-import { ICorrelator, GuildLoggerOptions, LogLevel, Meta } from "./types";
+import {
+  ICorrelator,
+  GuildLoggerOptions,
+  LogLevel,
+  Meta,
+  IContext,
+} from "./types";
 import {
   getCallerFunctionAndFileName,
   includeErrorPropertiesFormat,
@@ -24,11 +30,17 @@ export default class GuildLogger {
   private correlator: ICorrelator;
 
   /**
+   * Guild context provider
+   */
+  private context: IContext;
+
+  /**
    * Set the logging options
    * @param options options for logging
    */
   constructor(options: GuildLoggerOptions) {
     this.correlator = options.correlator;
+    this.context = options.context;
 
     let logFormat: Format[];
     if (options.json) {
@@ -64,6 +76,7 @@ export default class GuildLogger {
       const { callerFunctionName, fileName } = getCallerFunctionAndFileName();
       const extendedMeta = {
         correlationId: this.correlator?.getId(),
+        ...this.context?.get(),
         ...meta,
         function: callerFunctionName,
         file: fileName,
