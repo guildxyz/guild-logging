@@ -4,7 +4,7 @@ node_modules/
 .env*
 /src/
 tests/
-/.eslintignore
-/.eslintrc.json
-/.prettierrc.json
-/tsconfig.json
+.eslintignore
+.eslintrc.json
+.prettierrc.json
+tsconfig.json
